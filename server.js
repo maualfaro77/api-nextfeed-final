@@ -130,9 +130,14 @@ app.use((err, req, res, next) => {
 });
 
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+// // Iniciar el servidor
+// app.listen(PORT, () => {
+//   console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+
+// });
+
+app.listen(process.env.PORT || 3000, '0.0.0.0', () => {
+  console.log('API corriendo...');
 });
 
 
