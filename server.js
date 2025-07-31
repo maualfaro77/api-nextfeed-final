@@ -30,7 +30,6 @@ const MONGODB_URI = process.env.MONGODB_URI;
 app.use(cors({
   origin: '*', // Permite cualquier origen (para desarrollo) CAMBIAR CUANDO ESTE EN PRODUCCION AL CODIGO DE ABAJO
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true // Permite el envío de cookies/headers de autorización
 }));
 
 // Si quieres ser más específico en producción:
@@ -99,7 +98,6 @@ app.get('/api/data-by-apikey', apiAuth, (req, res) => {
 
 
 // Rutas de autenticación
-app.use('/api/auth', authRoutes);
 
 // Rutas de publicaciones (protegidas donde sea necesario)
 app.use('/api/posts', postRoutes);
