@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   api:
     build: .
@@ -7,14 +6,10 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DB=mongodb://mongodb:27017/ProyectoApi
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - MONGODB_URI=mongodb://mongodb:27017/ProyectoApi
     depends_on:
       - mongodb
     command: npm start
-
 
   mongodb:
     image: mongo:latest
@@ -24,4 +19,4 @@ services:
       - mongodb_data:/data/db
 
 volumes:
-  mongodb_data:
+  mongodb_data
