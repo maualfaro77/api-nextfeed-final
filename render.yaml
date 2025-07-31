@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: api-nextfeed
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerComposeFilePath: ./docker-compose.yml
+    region: oregon
+    branch: main
+    autoDeploy: true
