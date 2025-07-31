@@ -80,13 +80,13 @@ app.get('/api/data-by-apikey', apiAuth, (req, res) => {
 
 
 // Manejo global de errores (500)
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.statusCode || 500).json({
-    message: err.message || 'Algo salió mal en el servidor.',
-    error: process.env.NODE_ENV === 'development' ? err : {} // No mostrar errores detallados en producción
-  });
-});
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(err.statusCode || 500).json({
+//     message: err.message || 'Algo salió mal en el servidor.',
+//     error: process.env.NODE_ENV === 'development' ? err : {} // No mostrar errores detallados en producción
+//   });
+// });
 
 
 
@@ -99,7 +99,6 @@ app.use((err, req, res, next) => {
 
 
 // Rutas de autenticación
-app.use('/api/auth', authRoutes);
 
 // Rutas de publicaciones (protegidas donde sea necesario)
 app.use('/api/posts', postRoutes);
