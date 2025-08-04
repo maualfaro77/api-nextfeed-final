@@ -138,3 +138,78 @@ exports.deletePost = async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor al eliminar la publicación.' });
   }
 };
+
+// Buscar todas las publicaciones
+exports.buscarTodo = async (req, res) => {
+  try {
+    const posts = await Post.find({});
+    if (posts.length) {
+      return res.status(200).json({ posts });
+    }
+    return res.status(204).json({ mensaje: 'No hay publicaciones registradas' });
+  } catch (e) {
+    return res.status(404).json({ mensaje: `Error al consultar la información: ${e}` });
+  }
+};
+
+// Agregar una publicación
+exports.agregarPost = async (req, res) => {
+  try {
+    const newPost = new Post(req.body);
+    const info = await newPost.save();
+    return res.status(200).json({
+      mensaje: 'La información se guardó correctamente',
+      info
+    });
+  } catch (e) {
+    return res.status(404).json({ mensaje: `Error al guardar la información: ${e}` });
+  }
+};
+
+// Buscar publicación por campo dinámico
+exports.buscarPost = async (req, res, next) => {
+  if (!req.body) req.body = {};
+  let consulta = {};
+  consulta[req.params.key] = req.params.value;
+  try {
+    const posts = await Post.find(consulta);
+    if (!posts.length) return next();
+    req.body.posts = posts;
+    return next();
+  } catch (e) {
+    req.body.e = e;
+    return next();
+  }
+};
+
+// Mostrar publicación encontrada
+exports.mostrarPost = (req, res) => {
+  if (req.body.e) return res.status(404).json({ mensaje: 'Error al consultar la información' });
+  if (!req.body.posts) return res.status(204).json({ mensaje: 'No hay nada que mostrar' });
+  return res.status(200).json({ posts: req.body.posts });
+};
+
+// Eliminar publicación por campo dinámico
+exports.eliminarPost = async (req, res) => {
+  const posts = req.body.posts;
+  try {
+    await Post.deleteOne(posts[0]);
+    return res.status(200).json({ mensaje: 'Registro eliminado' });
+  } catch (e) {
+    return res.status(404).json({ mensaje: 'Error al eliminar la información', e });
+  }
+};
+
+// Modificar publicación por campo dinámico
+exports.modificarPost = async (req, res) => {
+  const posts = req.body.posts;
+  if (!posts || !posts.length) {
+    return res.status(404).json({ mensaje: 'No se encontró la publicación' });
+  }
+  try {
+    await Post.updateOne(posts[0], req.body);
+    return res.status(200).json({ mensaje: 'Se registró correctamente :)' });
+  } catch (e) {
+    return res.status(404).json({ mensaje: 'Error al modificar la información', e });
+  }
+};

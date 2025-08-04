@@ -99,3 +99,78 @@ exports.deleteComment = async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor al eliminar el comentario.' });
   }
 };
+
+// Buscar todos los comentarios
+exports.buscarTodo = async (req, res) => {
+  try {
+    const comments = await Comment.find({});
+    if (comments.length) {
+      return res.status(200).json({ comments });
+    }
+    return res.status(204).json({ mensaje: 'No hay comentarios registrados' });
+  } catch (e) {
+    return res.status(404).json({ mensaje: `Error al consultar la información: ${e}` });
+  }
+};
+
+// Agregar un comentario
+exports.agregarComment = async (req, res) => {
+  try {
+    const newComment = new Comment(req.body);
+    const info = await newComment.save();
+    return res.status(200).json({
+      mensaje: 'La información se guardó correctamente',
+      info
+    });
+  } catch (e) {
+    return res.status(404).json({ mensaje: `Error al guardar la información: ${e}` });
+  }
+};
+
+// Buscar comentario por campo dinámico
+exports.buscarComment = async (req, res, next) => {
+  if (!req.body) req.body = {};
+  let consulta = {};
+  consulta[req.params.key] = req.params.value;
+  try {
+    const comments = await Comment.find(consulta);
+    if (!comments.length) return next();
+    req.body.comments = comments;
+    return next();
+  } catch (e) {
+    req.body.e = e;
+    return next();
+  }
+};
+
+// Mostrar comentario encontrado
+exports.mostrarComment = (req, res) => {
+  if (req.body.e) return res.status(404).json({ mensaje: 'Error al consultar la información' });
+  if (!req.body.comments) return res.status(204).json({ mensaje: 'No hay nada que mostrar' });
+  return res.status(200).json({ comments: req.body.comments });
+};
+
+// Eliminar comentario por campo dinámico
+exports.eliminarComment = async (req, res) => {
+  const comments = req.body.comments;
+  try {
+    await Comment.deleteOne(comments[0]);
+    return res.status(200).json({ mensaje: 'Registro eliminado' });
+  } catch (e) {
+    return res.status(404).json({ mensaje: 'Error al eliminar la información', e });
+  }
+};
+
+// Modificar comentario por campo dinámico
+exports.modificarComment = async (req, res) => {
+  const comments = req.body.comments;
+  if (!comments || !comments.length) {
+    return res.status(404).json({ mensaje: 'No se encontró el comentario' });
+  }
+  try {
+    await Comment.updateOne(comments[0], req.body);
+    return res.status(200).json({ mensaje: 'Se registró correctamente :)' });
+  } catch (e) {
+    return res.status(404).json({ mensaje: 'Error al modificar la información', e });
+  }
+};

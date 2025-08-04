@@ -1,21 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getPosts,
-  getPostById,
-  createPost,
-  updatePost,
-  deletePost
+  buscarTodo,
+  agregarPost,
+  buscarPost,
+  mostrarPost,
+  eliminarPost,
+  modificarPost
 } = require('../controllers/postController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
-router.route('/')
-  .get(getPosts)      // Todos pueden ver las publicaciones
-  .post(protect, createPost); // Solo usuarios autenticados pueden crear
+// Obtener todas las publicaciones
+router.get('/', buscarTodo);
 
-router.route('/:id')
-  .get(getPostById) // Todos pueden ver una publicación específica
-  .put(protect, updatePost) // Solo el propietario o admin puede actualizar
-  .delete(protect, deletePost); // Solo el propietario o admin puede eliminar
+// Agregar una publicación
+router.post('/', protect, agregarPost);
+
+// Buscar publicación por campo dinámico
+router.get('/:key/:value', buscarPost, mostrarPost);
+
+// Eliminar publicación por campo dinámico
+router.delete('/:key/:value', protect, buscarPost, eliminarPost);
+
+// Modificar publicación por campo dinámico
+router.put('/:key/:value', protect, buscarPost, modificarPost);
 
 module.exports = router;
