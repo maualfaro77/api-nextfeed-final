@@ -1,21 +1,31 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getCommentsByPost,
-  addComment,
-  updateComment,
-  deleteComment
+  buscarTodo,
+  agregarComment,
+  buscarComment,
+  mostrarComment,
+  eliminarComment,
+  modificarComment
 } = require('../controllers/commentController');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
-// Obtener comentarios de una publicación y agregar un comentario
-router.route('/posts/:postId/comments')
-  .get(getCommentsByPost) // Todos pueden ver los comentarios de un post
-  .post(protect, addComment); // Solo usuarios autenticados pueden comentar
+// Obtener todos los comentarios
+router.get('/', buscarTodo);
 
-// Actualizar y eliminar comentarios específicos
-router.route('/:id')
-  .put(protect, updateComment) // Solo el propietario o admin
-  .delete(protect, deleteComment); // Solo el propietario o admin (o dueño del post)
+// Agregar un comentario
+router.post('/', protect, agregarComment);
+
+// Buscar comentario por campo dinámico
+router.get('/:key/:value', buscarComment, mostrarComment);
+
+// Eliminar comentario por campo dinámico
+router.delete('/:key/:value', buscarComment, eliminarComment);
+
+// Modificar comentario por campo dinámico
+router.put('/:key/:value', buscarComment, modificarComment);
+
+// Obtener comentarios por ID de publicación
+router.get('/post/:value', buscarComment, mostrarComment);
 
 module.exports = router;
