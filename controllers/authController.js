@@ -1,11 +1,10 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Función para generar JWT
 const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
-    expiresIn: '1h' // El token expira en 1 hora
-  });
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
 // @desc    Registrar nuevo usuario
@@ -28,7 +27,7 @@ exports.register = async (req, res) => {
     user = await User.create({
       username,
       password,
-      role: role || 'user' // Si no se especifica, por defecto es 'user'
+      role: role || 'user'
     });
 
     const token = generateToken(user._id, user.role);
@@ -44,7 +43,7 @@ exports.register = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    if (error.code === 11000) { // Error de clave duplicada (para username único)
+    if (error.code === 11000) {
       return res.status(400).json({ message: 'El nombre de usuario ya está en uso.' });
     }
     res.status(500).json({ message: 'Error en el servidor al registrar usuario.' });
@@ -56,36 +55,18 @@ exports.register = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
   const { username, password } = req.body;
-
-  // Validaciones básicas
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Por favor, ingrese un nombre de usuario y una contraseña.' });
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(401).json({ message: 'Usuario no encontrado' });
   }
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) return res.status(401).json({ message: 'Contraseña incorrecta' });
 
-  try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({ message: 'Credenciales inválidas.' }); // Usar 401 para credenciales inválidas
-    }
+  const token = generateToken(user._id, user.role);
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Credenciales inválidas.' });
-    }
-
-    const token = generateToken(user._id, user.role);
-
-    res.status(200).json({
-      message: 'Inicio de sesión exitoso',
-      user: {
-        id: user._id,
-        username: user.username,
-        role: user.role
-      },
-      token
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error en el servidor al iniciar sesión.' });
-  }
+  res.status(200).json({
+    message: 'Login exitoso',
+    token,
+    user: { id: user._id, username: user.username, role: user.role }
+  });
 };

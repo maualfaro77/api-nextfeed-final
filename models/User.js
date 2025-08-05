@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, 'El nombre de usuario es obligatorio'],
@@ -14,20 +14,26 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'La contraseña es obligatoria'],
     minlength: 6
   },
-  role: { // Para control de acceso basado en roles (opcional pero buena práctica)
+  role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
+  },
+  bio: {
+    type: String,
+    default: ''
+  },
+  avatarUrl: {
+    type: String,
+    default: ''
   }
 }, {
-  timestamps: true // Agrega campos createdAt y updatedAt automáticamente
+  timestamps: true
 });
 
-// Middleware de Mongoose para hashear la contraseña antes de guardar
-UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
+// Hashea la contraseña antes de guardar
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -38,8 +44,8 @@ UserSchema.pre('save', async function(next) {
 });
 
 // Método para comparar la contraseña ingresada con la hasheada
-UserSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', userSchema);

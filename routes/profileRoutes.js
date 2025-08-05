@@ -1,65 +1,38 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // Necesitamos el modelo de usuario
-const { protect } = require('../middleware/authMiddleware'); // Necesitamos protect para esta ruta
+const {
+  buscarTodo,
+  agregarPerfil,
+  buscarPerfil,
+  mostrarPerfil,
+  eliminarPerfil,
+  modificarPerfil
+} = require('../controllers/profileController');
+const { protect } = require('../middleware/authMiddleware');
 
 // @desc    Obtener información del perfil del usuario autenticado
 // @route   GET /api/profile
 // @access  Private (Necesita JWT)
-router.get('/', protect, async (req, res) => {
-  try {
-    // req.user ya está disponible desde el middleware 'protect'
-    // Excluir la contraseña por seguridad
-    const userProfile = await User.findById(req.user._id).select('-password -role');
+router.get('/', protect, buscarTodo);
 
-    if (!userProfile) {
-      return res.status(404).json({ message: 'Perfil de usuario no encontrado.' });
-    }
-    res.status(200).json({ message: 'Perfil obtenido exitosamente', user: userProfile });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error en el servidor al obtener el perfil.' });
-  }
-});
-
-// @desc    Actualizar información del perfil del usuario autenticado
-// @route   PUT /api/profile
+// @desc    Agregar un perfil
+// @route   POST /api/profile
 // @access  Private (Necesita JWT)
-router.put('/', protect, async (req, res) => {
-  const { username } = req.body; // Puedes añadir más campos aquí
+router.post('/', protect, agregarPerfil);
 
-  try {
-    const user = await User.findById(req.user._id);
+// @desc    Buscar perfil por campo dinámico
+// @route   GET /api/profile/:key/:value
+// @access  Private (Necesita JWT)
+router.get('/:key/:value', protect, buscarPerfil, mostrarPerfil);
 
-    if (!user) {
-      return res.status(404).json({ message: 'Perfil de usuario no encontrado.' });
-    }
+// @desc    Eliminar perfil por campo dinámico
+// @route   DELETE /api/profile/:key/:value
+// @access  Private (Necesita JWT)
+router.delete('/:key/:value', protect, buscarPerfil, eliminarPerfil);
 
-    if (username) {
-      // Verificar si el nuevo username ya existe (excepto si es el propio usuario)
-      const existingUser = await User.findOne({ username });
-      if (existingUser && existingUser._id.toString() !== user._id.toString()) {
-        return res.status(400).json({ message: 'Ese nombre de usuario ya está en uso.' });
-      }
-      user.username = username;
-    }
-    // Si quisieras permitir cambiar la contraseña, necesitarías lógica similar a la de registro
-    // if (newPassword) { user.password = newPassword; await user.save(); } // El pre-save hook hasheará la contraseña
-
-    const updatedUser = await user.save();
-    res.status(200).json({
-      message: 'Perfil actualizado exitosamente',
-      user: {
-        id: updatedUser._id,
-        username: updatedUser.username,
-        role: updatedUser.role
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error en el servidor al actualizar el perfil.' });
-  }
-});
-
+// @desc    Modificar perfil por campo dinámico
+// @route   PUT /api/profile/:key/:value
+// @access  Private (Necesita JWT)
+router.put('/:key/:value', protect, buscarPerfil, modificarPerfil);
 
 module.exports = router;

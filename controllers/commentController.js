@@ -129,6 +129,7 @@ exports.agregarComment = async (req, res) => {
 
 // Buscar comentario por campo dinámico
 exports.buscarComment = async (req, res, next) => {
+  if (!req.body) req.body = {}; // <-- Esta línea previene el error
   let consulta = {};
   consulta[req.params.key || 'post'] = req.params.value;
   try {
@@ -172,3 +173,36 @@ exports.modificarComment = async (req, res) => {
     return res.status(404).json({ mensaje: 'Error al modificar la información', e });
   }
 };
+
+function checkAuthStatus() {
+    if (currentToken) {
+        showMainAppScreen();
+        fetchPosts();
+        document.getElementById('userWelcome').textContent = `¡Hola, ${currentUsername}!`;
+    } else {
+        // Limpiar campos al mostrar login
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('registerUsername').value = '';
+        document.getElementById('registerPassword').value = '';
+        showScreen('authScreen');
+        showAuthTab('loginTab');
+    }
+}
+
+function showAuthTab(tabId) {
+    document.querySelectorAll('#authScreen .tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (tabId === 'loginTab') {
+        document.getElementById('loginTabButton').classList.add('active');
+        // Limpiar campos de login cada vez que se abre el tab
+        document.getElementById('loginUsername').value = '';
+        document.getElementById('loginPassword').value = '';
+    } else {
+        document.getElementById('registerTabButton').classList.add('active');
+        // Limpiar campos de registro cada vez que se abre el tab
+        document.getElementById('registerUsername').value = '';
+        document.getElementById('registerPassword').value = '';
+    }
+}

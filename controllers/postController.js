@@ -168,13 +168,26 @@ exports.agregarPost = async (req, res) => {
 
 // Buscar publicación por campo dinámico
 exports.buscarPost = async (req, res, next) => {
-  if (!req.body) req.body = {};
+  req.body = req.body || {};
   let consulta = {};
-  consulta[req.params.key] = req.params.value;
+  // Permite búsqueda parcial por título
+  if (req.params.key === 'title') {
+    consulta.title = { $regex: req.params.value, $options: 'i' };
+  } else {
+    consulta[req.params.key] = req.params.value;
+  }
+
+  // Paginación
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const skip = (page - 1) * limit;
+
   try {
-    const posts = await Post.find(consulta);
-    if (!posts.length) return next();
+    const total = await Post.countDocuments(consulta);
+    const posts = await Post.find(consulta).skip(skip).limit(limit).sort({ createdAt: -1 });
     req.body.posts = posts;
+    req.body.currentPage = page;
+    req.body.totalPages = Math.ceil(total / limit);
     return next();
   } catch (e) {
     req.body.e = e;
@@ -186,7 +199,11 @@ exports.buscarPost = async (req, res, next) => {
 exports.mostrarPost = (req, res) => {
   if (req.body.e) return res.status(404).json({ mensaje: 'Error al consultar la información' });
   if (!req.body.posts) return res.status(204).json({ mensaje: 'No hay nada que mostrar' });
-  return res.status(200).json({ posts: req.body.posts });
+  return res.status(200).json({
+    posts: req.body.posts,
+    currentPage: req.body.currentPage,
+    totalPages: req.body.totalPages
+  });
 };
 
 // Eliminar publicación por campo dinámico
