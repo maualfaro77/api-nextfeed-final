@@ -211,7 +211,7 @@ exports.eliminarPost = async (req, res) => {
   const posts = req.body.posts;
   try {
     await Post.deleteOne(posts[0]);
-    return res.status(200).json({ mensaje: 'Registro eliminado' });
+    return res.status(200).json({ mensaje: 'Publicacion eliminada' });
   } catch (e) {
     return res.status(404).json({ mensaje: 'Error al eliminar la información', e });
   }

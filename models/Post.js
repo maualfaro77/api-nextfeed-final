@@ -23,7 +23,9 @@ const PostSchema = new mongoose.Schema({
   username: { // Para mostrar el nombre del usuario sin necesidad de población extra
     type: String,
     required: true
-  }
+  },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+
 }, {
   timestamps: true
 });
