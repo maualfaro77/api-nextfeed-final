@@ -12,6 +12,122 @@ const { protect } = require('../middleware/authMiddleware');
 const Post = require('../models/Post');
 const User = require('../models/User');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Perfiles
+ *   description: Endpoints para gestión de perfiles de usuario
+ */
+
+/**
+ * @swagger
+ * /api/profile/id/{userId}:
+ *   get:
+ *     summary: Obtener perfil por ID de usuario (requiere autenticación)
+ *     tags: [Perfiles]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Perfil y publicaciones del usuario
+ */
+
+/**
+ * @swagger
+ * /api/profile:
+ *   get:
+ *     summary: Obtener información del perfil del usuario autenticado (requiere autenticación)
+ *     tags: [Perfiles]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Información del perfil
+ *   post:
+ *     summary: Agregar un perfil (requiere autenticación)
+ *     tags: [Perfiles]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               avatarUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Perfil agregado
+ */
+
+/**
+ * @swagger
+ * /api/profile/{key}/{value}:
+ *   put:
+ *     summary: Modificar perfil por campo dinámico (requiere autenticación)
+ *     tags: [Perfiles]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: value
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               avatarUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Perfil modificado
+ */
+
+/**
+ * @swagger
+ * /api/profile/follow/{userId}:
+ *   post:
+ *     summary: Seguir/Dejar de seguir a un usuario (requiere autenticación)
+ *     tags: [Perfiles]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Estado de seguimiento actualizado
+ */
+
 router.get('/id/:userId', protect, async (req, res) => {
   try {
     const profile = await User.findById(req.params.userId)

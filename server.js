@@ -13,6 +13,47 @@ const apiAuth = require('./middleware/apiAuthMiddleware'); // Para la autenticac
 
 const cors = require('cors'); // Importa cors
 
+// Swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
+
+const swaggerDefinition = {
+  openapi: '3.0.0',
+  info: {
+    title: 'API REST NextFeed',
+    version: '1.0.0',
+    description: 'Documentación de los endpoints de la API RESTful para NextFeed',
+  },
+  servers: [
+    {
+      url: 'http://localhost:3000',
+      description: 'Servidor local',
+    },
+  ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Ingrese el token JWT en el campo: Bearer <token>'
+      }
+    }
+  },
+  security: [
+    {
+      bearerAuth: []
+    }
+  ]
+};
+
+const options = {
+  swaggerDefinition,
+  apis: ['./routes/*.js'], // Puedes agregar más rutas si lo necesitas
+};
+
+const swaggerSpec = swaggerJSDoc(options);
+
 const postRoutes = require('./routes/postRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const profileRoutes = require('./routes/profileRoutes');
@@ -21,6 +62,9 @@ const profileRoutes = require('./routes/profileRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
+
+// Ruta de documentación Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 
@@ -137,6 +181,8 @@ app.use((err, req, res, next) => {
 app.listen(process.env.PORT || 3000, '0.0.0.0', () => {
   console.log('API corriendo...');
 });
+
+// Para ver la documentación Swagger, visita: http://localhost:3000/api-docs
 
 
 

@@ -11,6 +11,137 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const Post = require('../models/Post');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Publicaciones
+ *   description: Endpoints para gestión de publicaciones
+ */
+
+/**
+ * @swagger
+ * /api/posts:
+ *   get:
+ *     summary: Obtener todas las publicaciones
+ *     tags: [Publicaciones]
+ *     responses:
+ *       200:
+ *         description: Lista de publicaciones
+ *   post:
+ *     summary: Agregar publicación (requiere autenticación)
+ *     tags: [Publicaciones]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               imageUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Publicación agregada
+ */
+
+/**
+ * @swagger
+ * /api/posts/{key}/{value}:
+ *   get:
+ *     summary: Buscar publicación por campo dinámico
+ *     tags: [Publicaciones]
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: value
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Publicación encontrada
+ *   delete:
+ *     summary: Eliminar publicación por campo dinámico (requiere autenticación)
+ *     tags: [Publicaciones]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: value
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Publicación eliminada
+ *   put:
+ *     summary: Modificar publicación por campo dinámico (requiere autenticación)
+ *     tags: [Publicaciones]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: value
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               imageUrl:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Publicación modificada
+ */
+
+/**
+ * @swagger
+ * /api/posts/like/{postId}:
+ *   post:
+ *     summary: Dar/Quitar "Me gusta" a una publicación (requiere autenticación)
+ *     tags: [Publicaciones]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Estado de "Me gusta" actualizado
+ */
+
 // Obtener todas las publicaciones
 router.get('/', buscarTodo);
 
