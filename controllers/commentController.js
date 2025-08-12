@@ -25,7 +25,9 @@ exports.addComment = async (req, res) => {
   if (!content) {
     return res.status(400).json({ message: 'El contenido del comentario es obligatorio.' });
   }
-
+  if (!req.user || !req.user._id || !req.user.username) {
+    return res.status(401).json({ message: 'Usuario no autenticado. No se puede agregar el comentario.' });
+  }
   try {
     // Opcional: Verificar que la publicación exista
     const postExists = await Post.findById(postId);
@@ -52,6 +54,9 @@ exports.addComment = async (req, res) => {
 exports.updateComment = async (req, res) => {
   const { content } = req.body;
 
+  if (!req.user || !req.user._id || !req.user.role) {
+    return res.status(401).json({ message: 'Usuario no autenticado. No se puede actualizar el comentario.' });
+  }
   try {
     let comment = await Comment.findById(req.params.id);
 
@@ -77,6 +82,9 @@ exports.updateComment = async (req, res) => {
 // @route   DELETE /api/comments/:id
 // @access  Private (Solo el propietario o un admin)
 exports.deleteComment = async (req, res) => {
+  if (!req.user || !req.user._id || !req.user.role) {
+    return res.status(401).json({ message: 'Usuario no autenticado. No se puede eliminar el comentario.' });
+  }
   try {
     const comment = await Comment.findById(req.params.id);
 
@@ -115,8 +123,18 @@ exports.buscarTodo = async (req, res) => {
 
 // Agregar un comentario
 exports.agregarComment = async (req, res) => {
+  if (!req.user || !req.user._id || !req.user.username) {
+    return res.status(401).json({ mensaje: 'Usuario no autenticado. No se puede agregar el comentario.' });
+  }
   try {
-    const newComment = new Comment(req.body);
+    // Agregar automáticamente el usuario y username del token JWT
+    const commentData = {
+      ...req.body,
+      user: req.user._id,
+      username: req.user.username
+    };
+    
+    const newComment = new Comment(commentData);
     const info = await newComment.save();
     return res.status(200).json({
       mensaje: 'La información se guardó correctamente',

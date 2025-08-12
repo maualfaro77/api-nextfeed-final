@@ -22,13 +22,25 @@ const swaggerDefinition = {
   info: {
     title: 'API REST NextFeed',
     version: '1.0.0',
-    description: 'Documentación de los endpoints de la API RESTful para NextFeed',
+    description: 'API RESTful completa para una aplicación de redes sociales tipo NextFeed. Incluye autenticación JWT, gestión de usuarios, publicaciones, comentarios y perfiles.',
+    contact: {
+      name: 'API Support',
+      email: 'support@nextfeed.com'
+    },
+    license: {
+      name: 'MIT',
+      url: 'https://opensource.org/licenses/MIT'
+    }
   },
   servers: [
     {
       url: 'http://localhost:3000',
-      description: 'Servidor local',
+      description: 'Servidor de desarrollo local',
     },
+    {
+      url: 'https://api.nextfeed.com',
+      description: 'Servidor de producción',
+    }
   ],
   components: {
     securitySchemes: {
@@ -36,7 +48,195 @@ const swaggerDefinition = {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Ingrese el token JWT en el campo: Bearer <token>'
+        description: 'Ingrese el token JWT obtenido del endpoint de login. Formato: Bearer <token>'
+      },
+  // Eliminado apiKeyAuth
+    },
+    schemas: {
+      User: {
+        type: 'object',
+        properties: {
+          _id: {
+            type: 'string',
+            description: 'ID único del usuario'
+          },
+          username: {
+            type: 'string',
+            description: 'Nombre de usuario único',
+            minLength: 3,
+            maxLength: 30
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            description: 'Correo electrónico único'
+          },
+          role: {
+            type: 'string',
+            enum: ['user', 'admin'],
+            description: 'Rol del usuario',
+            default: 'user'
+          },
+          bio: {
+            type: 'string',
+            description: 'Biografía del usuario',
+            maxLength: 500
+          },
+          avatarUrl: {
+            type: 'string',
+            format: 'uri',
+            description: 'URL del avatar del usuario'
+          },
+          followers: {
+            type: 'array',
+            items: {
+              type: 'string'
+            },
+            description: 'Array de IDs de usuarios que siguen a este usuario'
+          },
+          following: {
+            type: 'array',
+            items: {
+              type: 'string'
+            },
+            description: 'Array de IDs de usuarios que este usuario sigue'
+          },
+          isActive: {
+            type: 'boolean',
+            description: 'Estado activo del usuario',
+            default: true
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de creación del usuario'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de última actualización'
+          }
+        }
+      },
+      Post: {
+        type: 'object',
+        properties: {
+          _id: {
+            type: 'string',
+            description: 'ID único de la publicación'
+          },
+          title: {
+            type: 'string',
+            description: 'Título de la publicación',
+            maxLength: 100
+          },
+          content: {
+            type: 'string',
+            description: 'Contenido de la publicación'
+          },
+          imageUrl: {
+            type: 'string',
+            format: 'uri',
+            description: 'URL de la imagen de la publicación'
+          },
+          user: {
+            type: 'string',
+            description: 'ID del usuario que creó la publicación'
+          },
+          username: {
+            type: 'string',
+            description: 'Nombre del usuario que creó la publicación'
+          },
+          likes: {
+            type: 'array',
+            items: {
+              type: 'string'
+            },
+            description: 'Array de IDs de usuarios que dieron like'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de creación de la publicación'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de última actualización'
+          }
+        }
+      },
+      Comment: {
+        type: 'object',
+        properties: {
+          _id: {
+            type: 'string',
+            description: 'ID único del comentario'
+          },
+          content: {
+            type: 'string',
+            description: 'Contenido del comentario',
+            maxLength: 500
+          },
+          user: {
+            type: 'string',
+            description: 'ID del usuario que hizo el comentario'
+          },
+          username: {
+            type: 'string',
+            description: 'Nombre del usuario que hizo el comentario'
+          },
+          post: {
+            type: 'string',
+            description: 'ID de la publicación a la que pertenece el comentario'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de creación del comentario'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de última actualización'
+          }
+        }
+      },
+      Error: {
+        type: 'object',
+        properties: {
+          success: {
+            type: 'boolean',
+            description: 'Indica si la operación fue exitosa',
+            example: false
+          },
+          message: {
+            type: 'string',
+            description: 'Mensaje de error descriptivo'
+          },
+          error: {
+            type: 'object',
+            description: 'Detalles adicionales del error (solo en desarrollo)'
+          }
+        }
+      },
+      Success: {
+        type: 'object',
+        properties: {
+          success: {
+            type: 'boolean',
+            description: 'Indica si la operación fue exitosa',
+            example: true
+          },
+          message: {
+            type: 'string',
+            description: 'Mensaje de éxito'
+          },
+          data: {
+            type: 'object',
+            description: 'Datos de la respuesta'
+          }
+        }
       }
     }
   },
@@ -49,7 +249,7 @@ const swaggerDefinition = {
 
 const options = {
   swaggerDefinition,
-  apis: ['./routes/*.js'], // Puedes agregar más rutas si lo necesitas
+  apis: ['./routes/*.js'], // Incluye todas las rutas
 };
 
 const swaggerSpec = swaggerJSDoc(options);
@@ -64,7 +264,17 @@ const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // Ruta de documentación Swagger
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "API REST NextFeed - Documentación",
+  customfavIcon: "/favicon.ico",
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    filter: true,
+    deepLinking: true
+  }
+}));
 
 
 
@@ -109,14 +319,6 @@ app.get('/api/admin-only', protect, authorize(['admin']), (req, res) => {
   res.status(200).json({
     message: `¡Hola admin ${req.user.username}! Tienes acceso a esta ruta de administrador.`,
     user: req.user
-  });
-});
-
-// Ejemplo de una ruta protegida con API Key
-app.get('/api/data-by-apikey', apiAuth, (req, res) => {
-  res.status(200).json({
-    message: 'Has accedido a esta ruta utilizando una API Key válida.',
-    data: { item1: 'dato_secreto', item2: 'otro_dato_confidencial' }
   });
 });
 

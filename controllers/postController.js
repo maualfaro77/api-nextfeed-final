@@ -155,7 +155,14 @@ exports.buscarTodo = async (req, res) => {
 // Agregar una publicación
 exports.agregarPost = async (req, res) => {
   try {
-    const newPost = new Post(req.body);
+    // Agregar automáticamente el usuario y username del token JWT
+    const postData = {
+      ...req.body,
+      user: req.user._id,
+      username: req.user.username
+    };
+    
+    const newPost = new Post(postData);
     const info = await newPost.save();
     return res.status(200).json({
       mensaje: 'Tu publicación se ha creado correctamente',
