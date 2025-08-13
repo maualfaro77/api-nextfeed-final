@@ -64,8 +64,6 @@ routes/
 - `/api/comments` — Comentarios en publicaciones
 - `/api/profile` — Gestión de perfiles
 
-## Contribuir
-Las contribuciones son bienvenidas. Puedes abrir issues o pull requests para sugerir mejoras o reportar errores.
+## Recomendacion
+Cambiar a la rama prueba-documentacion, es la que contiene todo la funcionalidad final mostrada en la exposicion
 
-## Licencia
-Este proyecto está bajo la licencia MIT.
